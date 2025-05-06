@@ -1,3 +1,8 @@
+// go-contact-api
+// Author: Owen Yesuf
+// Description: A simple contact management REST API built with Go.
+// Supports full CRUD operations (Create, Read, Update, Delete) via HTTP.
+
 package main
 
 import (
@@ -18,14 +23,7 @@ type Contact struct {
 
 var contacts = []Contact{}
 
-func main() {
-	http.HandleFunc("/contact", handleContacts)
-	http.HandleFunc("/contact/", updateContact)
-
-	fmt.Println("Server running at http://localhost:8080")
-	log.Fatal(http.ListenAndServe("localhost:8080", nil))
-}
-
+// getContacts handles GET requests to retrieve all contacts.
 func getContacts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -36,6 +34,7 @@ func getContacts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contacts)
 }
 
+// createContacts handles POST requests to create a new contact.
 func createContacts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -56,6 +55,7 @@ func createContacts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contacts)
 }
 
+// handleContacts dispatches GET and POST requests to their respective handlers.
 func handleContacts(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		getContacts(w, r)
@@ -66,6 +66,7 @@ func handleContacts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// deleteContact handles DELETE requests to remove a contact by ID.
 func deleteContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -92,6 +93,8 @@ func deleteContact(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Contact not found", http.StatusNotFound)
 }
 
+// updateContact handles PUT requests to update a contact's details by ID.
+// It also routes DELETE requests to deleteContact when using /contact/{id}.
 func updateContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		// If it's not PUT, try deleteContact for DELETE method
@@ -130,4 +133,12 @@ func updateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, "Contact not found", http.StatusNotFound)
+}
+
+func main() {
+	http.HandleFunc("/contact", handleContacts)
+	http.HandleFunc("/contact/", updateContact)
+
+	fmt.Println("Server running at http://localhost:8080")
+	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
